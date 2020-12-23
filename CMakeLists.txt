@@ -5,7 +5,7 @@ find_package(GTest REQUIRED)
 
 # add_executable(Static main.cpp TimingDiagram.cpp)
 # add_executable(Operators mainOperators.cpp TimingDiagramOperators.cpp)
-# add_executable(Dymanic mainDynamic.cpp TimingDiagramDynamic.cpp)
+add_executable(Dymanic mainDynamic.cpp TimingDiagramDynamic.cpp)
 
 enable_testing()
 

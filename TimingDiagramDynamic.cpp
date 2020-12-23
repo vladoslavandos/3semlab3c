@@ -112,7 +112,11 @@ Diagram::~Diagram()
 std::istream& operator>>(std::istream& st, Diagram& Diagram)
 {
   st >> Diagram.csize;
-  Diagram.sections = (Signal*)std::realloc((void*)Diagram.sections, Diagram.size() * sizeof(Signal));
+  //Signal *tmp = new Signal[Diagram.size() * sizeof(Signal)];
+  // std::move(Diagram.sections, Diagram.sections+Diagram.size(), tmp);
+  delete[] Diagram.sections;
+  Diagram.sections = new Signal[Diagram.size() * sizeof(Signal)];
+  // Diagram.sections = (Signal*)std::realloc((void*)Diagram.sections, Diagram.size() * sizeof(Signal));
   for (size_t i = 0; i < Diagram.csize; i++)
     st >> Diagram.sections[i];
   return st;
@@ -169,10 +173,16 @@ Diagram& Diagram::operator()(int timestamp, Diagram const& second)
 
 Diagram& Diagram::operator*=(size_t n)
 {
-  sections = (Signal*)std::realloc((void*)sections, size() * n * sizeof(Signal));
-  for (size_t i = 1; i < n; i++)
+  Signal *tmp = new Signal[size()*n];
+  // std::move(sections, sections+size(), tmp);
+  // delete[] sections;
+  // sections = tmp;
+  // sections = (Signal*)std::realloc((void*)sections, size() * n * sizeof(Signal));
+  for (size_t i = 0; i < n; i++)
     for (size_t j = 0; j < size(); j++)
-      sections[i * size() + j] = sections[j];
+      tmp[i * size() + j] = sections[j];
+  delete[] sections;
+  sections = tmp;
   csize = size() * n;
 
   mergeBlocks();
@@ -231,7 +241,11 @@ int Diagram::get_total_time() const
 
 void Diagram::insertSignalBlock(Signal const& sig)
 {
-  sections          = (Signal*)std::realloc((void*)sections, (size() + 1) * sizeof(Signal));
+  Signal *tmp = new Signal[size()+1];
+  std::move(sections, sections+size(), tmp);
+  delete[] sections;
+  sections = tmp;
+  // sections          = (Signal*)std::realloc((void*)sections, (size() + 1) * sizeof(Signal));
   sections[csize++] = sig;
 }
 
@@ -258,7 +272,11 @@ Diagram& Diagram::mergeBlocks()
   }
   sections[resulting_size++] = Signal(last, block_time);
   csize                      = resulting_size;
-  sections                   = (Signal*)std::realloc((void*)sections, size() * sizeof(Signal));
+  Signal *tmp = new Signal[size()];
+  std::move(sections, sections+size(), tmp);
+  delete[] sections;
+  sections = tmp;
+  // sections                   = (Signal*)std::realloc((void*)sections, size() * sizeof(Signal));
   return *this;
 }
 
